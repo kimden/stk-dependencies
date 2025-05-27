@@ -60,9 +60,9 @@ jobs:
       - name: Build apple llvm
         run: |
           sudo apt install -y libbz2-dev libxml2-dev libacl1-dev liblzma-dev zlib1g-dev libssl-dev libxml2-dev ninja-build
-          wget https://github.com/apple/llvm-project/archive/refs/heads/apple/stable/20221013.zip -O 20221013.zip
-          unzip 20221013.zip
-          cd llvm-project-apple-stable-20221013
+          wget https://github.com/swiftlang/llvm-project/archive/refs/tags/swift-6.0-RELEASE.zip -O swift-6.0-RELEASE.zip
+          unzip swift-6.0-RELEASE.zip
+          cd llvm-project-swift-6.0-RELEASE
           sed -i -z 's/\&\&\n      getTriple().isX86()/\&\& OSTarget->getAsString(Args, Opts).find("simulator") != std::string::npos/g' clang/lib/Driver/ToolChains/Darwin.cpp
           mkdir build
           cd build
