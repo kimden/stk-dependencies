@@ -50,7 +50,7 @@ jobs:
   build:
     name: Build cctools
     needs: extract_sdk
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Download SDK
         uses: actions/download-artifact@v4
