@@ -16,7 +16,7 @@ env:
 jobs:
   extract_sdk:
     name: Extract SDK
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - name: Copy SDK files
         run: |
