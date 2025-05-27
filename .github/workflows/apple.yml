@@ -106,9 +106,9 @@ jobs:
           cd build
           # Fix old Mac without HAVE_CLOCK_GETTIME_MONOTONIC
           if [ ${{ matrix.platform }} = "MacOSX" ] && [ ${{ matrix.arch }} = "x86_64" ]; then
-            wget https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/MacOSX10.9.sdk.tar.xz
-            tar xf MacOSX10.9.sdk.tar.xz
-            extra_flags="-isysroot $(pwd)/MacOSX10.9.sdk"
+            wget https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/MacOSX10.13.sdk.tar.xz
+            tar xf MacOSX10.13.sdk.tar.xz
+            extra_flags="-isysroot $(pwd)/MacOSX10.13.sdk"
           fi
           # -DCURL_CA_BUNDLE=none -DCURL_CA_PATH=none because STK includes its own
           cmake .. -DCCTOOLS_PREFIX=/opt/cctools -DCCTOOLS_PLATFORM=${{ matrix.platform }} -DCCTOOLS_ARCH=${{ matrix.arch }} \
@@ -366,17 +366,17 @@ jobs:
         with:
           xcode-version: latest-stable
       - name: Configure packaging name for git master branch
-        if: ${{ github.ref == 'refs/heads/master' }}
+        # if: ${{ github.ref == 'refs/heads/master' }}
         run: |
           echo "release_name=preview" >> $GITHUB_ENV
-      - name: Configure packaging name for tag
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        run: |
-          echo "release_name=`basename $GITHUB_REF`" >> $GITHUB_ENV
-      - name: Exit otherwise
-        if: ${{ !(github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')) ||
-            github.repository_owner != 'supertuxkart' }}
-        run: exit 1
+      # - name: Configure packaging name for tag
+      #   if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      #   run: |
+      #     echo "release_name=`basename $GITHUB_REF`" >> $GITHUB_ENV
+      # - name: Exit otherwise
+      #   if: ${{ !(github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')) ||
+      #       github.repository_owner != 'supertuxkart' }}
+      #   run: exit 1
       - name: Check for prerelease
         if: ${{ github.ref == 'refs/heads/master' || contains(github.ref, 'rc') || contains(github.ref, 'beta') }}
         run: |
