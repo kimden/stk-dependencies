@@ -75,7 +75,6 @@ jobs:
         run: |
           wget https://github.com/tpoechtrager/apple-libtapi/archive/refs/heads/master.zip -O libtapi.zip
           unzip libtapi.zip
-          cd apple-libtapi-master
           INSTALLPREFIX=/opt/cctools ./build.sh
           sudo ./install.sh
       - name: Build cctools
