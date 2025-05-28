@@ -77,7 +77,7 @@ jobs:
           cd tempdir
           wget https://github.com/tpoechtrager/apple-libtapi/archive/refs/heads/master.zip -O libtapi.zip
           unzip libtapi.zip
-          cd $(find . -mindepth 1 -maxdepth 1 -type d \( ! -name . \) -exec bash -c "cd '{}' && pwd" \;)"
+          cd $(find . -mindepth 1 -maxdepth 1 -type d \( ! -name . \) -exec bash -c "cd '{}' && pwd" \;)
           INSTALLPREFIX=/opt/cctools ./build.sh
           sudo ./install.sh
       - name: Build cctools
