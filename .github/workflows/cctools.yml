@@ -52,25 +52,25 @@ jobs:
     needs: extract_sdk
     runs-on: ubuntu-24.04
     steps:
-      # - name: Download SDK
-      #   uses: actions/download-artifact@v4
-      # - name: Extract SDK
-      #   run: |
-      #     sudo tar xf sdk/cctools.tar -C /opt
-      # - name: Build apple llvm
-      #   run: |
-      #     sudo apt install -y libbz2-dev libxml2-dev libacl1-dev liblzma-dev zlib1g-dev libssl-dev libxml2-dev ninja-build
-      #     wget https://github.com/swiftlang/llvm-project/archive/refs/tags/swift-6.0-RELEASE.zip -O swift-6.0-RELEASE.zip
-      #     unzip swift-6.0-RELEASE.zip
-      #     cd llvm-project-swift-6.0-RELEASE
-      #     sed -i -z 's/\&\&\n      getTriple().isX86()/\&\& OSTarget->getAsString(Args, Opts).find("simulator") != std::string::npos/g' clang/lib/Driver/ToolChains/Darwin.cpp
-      #     mkdir build
-      #     cd build
-      #     cmake ../llvm -G Ninja -DLLVM_ENABLE_PROJECTS=clang -DCMAKE_INSTALL_PREFIX=/opt/cctools \
-      #     -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_C_FLAGS="-I/opt/cctools/include -L/opt/cctools/lib" \
-      #     -DCMAKE_CXX_FLAGS="-I/opt/cctools/include -L/opt/cctools/lib"
-      #     ninja
-      #     sudo ninja install
+      - name: Download SDK
+        uses: actions/download-artifact@v4
+      - name: Extract SDK
+        run: |
+          sudo tar xf sdk/cctools.tar -C /opt
+      - name: Build apple llvm
+        run: |
+          sudo apt install -y libbz2-dev libxml2-dev libacl1-dev liblzma-dev zlib1g-dev libssl-dev libxml2-dev ninja-build
+          wget https://github.com/swiftlang/llvm-project/archive/refs/tags/swift-6.0-RELEASE.zip -O swift-6.0-RELEASE.zip
+          unzip swift-6.0-RELEASE.zip
+          cd llvm-project-swift-6.0-RELEASE
+          sed -i -z 's/\&\&\n      getTriple().isX86()/\&\& OSTarget->getAsString(Args, Opts).find("simulator") != std::string::npos/g' clang/lib/Driver/ToolChains/Darwin.cpp
+          mkdir build
+          cd build
+          cmake ../llvm -G Ninja -DLLVM_ENABLE_PROJECTS=clang -DCMAKE_INSTALL_PREFIX=/opt/cctools \
+          -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_C_FLAGS="-I/opt/cctools/include -L/opt/cctools/lib" \
+          -DCMAKE_CXX_FLAGS="-I/opt/cctools/include -L/opt/cctools/lib"
+          ninja
+          sudo ninja install
       - name: Build libtapi
         run: |
           mkdir tempdir
