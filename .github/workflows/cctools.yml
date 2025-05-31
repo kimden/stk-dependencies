@@ -81,6 +81,7 @@ jobs:
           mv "${temp_folder}" "./apple-libtapi-master"
           mv "./apple-libtapi-master" "../apple-libtapi-master"
           cd "../apple-libtapi-master"
+          rm "../tempdir/libtapi.zip"
           rmdir "../tempdir"
           INSTALLPREFIX=/opt/cctools ./build.sh
           sudo ./install.sh
