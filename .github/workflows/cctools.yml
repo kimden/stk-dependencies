@@ -90,7 +90,6 @@ jobs:
           wget https://github.com/tpoechtrager/cctools-port/archive/refs/heads/master.zip -O cctools.zip
           unzip cctools.zip
           cd cctools-port-master/cctools
-          sed -i -z 's/\&\&\n      getTriple().isX86()/\&\& OSTarget->getAsString(Args, Opts).find("simulator") != std::string::npos/g' clang/lib/Driver/ToolChains/Darwin.cpp
           CC=/opt/cctools/bin/clang CXX=/opt/cctools/bin/clang++ ./configure \
           --prefix=/opt/cctools --with-libtapi=/opt/cctools \
           --with-llvm-config=/opt/cctools/bin/llvm-config \
