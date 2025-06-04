@@ -57,6 +57,19 @@ jobs:
       - name: Extract SDK
         run: |
           sudo tar xf sdk/cctools.tar -C /opt
+      - name: Build libdispatch
+        run: |
+          wget https://github.com/tpoechtrager/apple-libdispatch/archive/refs/heads/main.zip -O apple-libdispatch-main.zip
+          unzip apple-libdispatch-main.zip
+          cd apple-libdispatch-main/
+          mkdir build
+          cd build
+          cmake -G Ninja \
+          -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
+          -DCMAKE_INSTALL_PREFIX=/opt/cctools/ -DENABLE_SWIFT=OFF \
+          -DBUILD_TESTING=OFF ..
+          ninja
+          sudo ninja install
       - name: Build apple llvm
         run: |
           sudo apt install -y libbz2-dev libxml2-dev libacl1-dev liblzma-dev zlib1g-dev libssl-dev libxml2-dev ninja-build
@@ -86,7 +99,7 @@ jobs:
           unzip cctools.zip
           cd cctools-port-1024.3-ld64-955.13/cctools
           CC=/opt/cctools/bin/clang CXX=/opt/cctools/bin/clang++ ./configure \
-          --prefix=/opt/cctools --with-libtapi=/opt/cctools \
+          --prefix=/opt/cctools --with-libtapi=/opt/cctools --with-libdispatch=/opt/cctools \
           --with-llvm-config=/opt/cctools/bin/llvm-config \
           --target=x86_64-apple-darwin11
           make -j5
@@ -96,7 +109,7 @@ jobs:
           unzip cctools.zip
           cd cctools-port-master/cctools
           CC=/opt/cctools/bin/clang CXX=/opt/cctools/bin/clang++ ./configure \
-          --prefix=/opt/cctools --with-libtapi=/opt/cctools \
+          --prefix=/opt/cctools --with-libtapi=/opt/cctools --with-libdispatch=/opt/cctools \
           --with-llvm-config=/opt/cctools/bin/llvm-config \
           --target=arm-apple-darwin11
           make -j5
