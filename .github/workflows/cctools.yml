@@ -60,9 +60,9 @@ jobs:
       - name: Build apple llvm
         run: |
           sudo apt install -y libbz2-dev libxml2-dev libacl1-dev liblzma-dev zlib1g-dev libssl-dev libxml2-dev ninja-build
-          wget https://github.com/swiftlang/llvm-project/archive/refs/tags/swift-6.0-RELEASE.zip -O swift-6.0-RELEASE.zip
-          unzip swift-6.0-RELEASE.zip
-          cd llvm-project-swift-6.0-RELEASE
+          wget https://github.com/swiftlang/llvm-project/archive/refs/tags/swift-6.0-DEVELOPMENT-SNAPSHOT-2024-07-02-a.zip -O swift-6.0-DEVELOPMENT-SNAPSHOT-2024-07-02-a.zip
+          unzip swift-6.0-DEVELOPMENT-SNAPSHOT-2024-07-02-a.zip
+          cd llvm-project-swift-6.0-DEVELOPMENT-SNAPSHOT-2024-07-02-a
           sed -i -z 's/\&\&\n      getTriple().isX86()/\&\& OSTarget->getAsString(Args, Opts).find("simulator") != std::string::npos/g' clang/lib/Driver/ToolChains/Darwin.cpp
           mkdir build
           cd build
@@ -75,21 +75,16 @@ jobs:
         run: |
           mkdir tempdir
           cd tempdir
-          wget https://github.com/tpoechtrager/apple-libtapi/archive/refs/heads/master.zip -O libtapi.zip
+          wget https://github.com/tpoechtrager/apple-libtapi/archive/refs/heads/1600.0.11.8.zip -O libtapi.zip
           unzip libtapi.zip
-          temp_folder=$(find . -mindepth 1 -maxdepth 1 -type d \( ! -name . \) -exec bash -c "cd '{}' && pwd" \;)
-          mv "${temp_folder}" "./apple-libtapi-master"
-          mv "./apple-libtapi-master" "../apple-libtapi-master"
-          cd "../apple-libtapi-master"
-          rm "../tempdir/libtapi.zip"
-          rmdir "../tempdir"
+          cd "apple-libtapi-1600.0.11.8"
           INSTALLPREFIX=/opt/cctools ./build.sh
           sudo ./install.sh
       - name: Build cctools
         run: |
-          wget https://github.com/tpoechtrager/cctools-port/archive/refs/heads/master.zip -O cctools.zip
+          wget https://github.com/tpoechtrager/cctools-port/archive/refs/heads/1024.3-ld64-955.13.zip -O cctools.zip
           unzip cctools.zip
-          cd cctools-port-master/cctools
+          cd cctools-port-1024.3-ld64-955.13/cctools
           CC=/opt/cctools/bin/clang CXX=/opt/cctools/bin/clang++ ./configure \
           --prefix=/opt/cctools --with-libtapi=/opt/cctools \
           --with-llvm-config=/opt/cctools/bin/llvm-config \
