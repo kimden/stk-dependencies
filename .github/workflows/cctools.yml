@@ -99,7 +99,9 @@ jobs:
           unzip cctools.zip
           cd cctools-port-1024.3-ld64-955.13/cctools
           CC=/opt/cctools/bin/clang CXX=/opt/cctools/bin/clang++ ./configure \
-          --prefix=/opt/cctools --with-libtapi=/opt/cctools --with-libdispatch=/opt/cctools \
+          --prefix=/opt/cctools --with-libtapi=/opt/cctools \
+          --with-libdispatch=/opt/cctools \
+          --with-libblocksruntime=/opt/cctools \
           --with-llvm-config=/opt/cctools/bin/llvm-config \
           --target=x86_64-apple-darwin11
           make -j5
@@ -109,7 +111,9 @@ jobs:
           unzip cctools.zip
           cd cctools-port-master/cctools
           CC=/opt/cctools/bin/clang CXX=/opt/cctools/bin/clang++ ./configure \
-          --prefix=/opt/cctools --with-libtapi=/opt/cctools --with-libdispatch=/opt/cctools \
+          --prefix=/opt/cctools --with-libtapi=/opt/cctools \
+          --with-libdispatch=/opt/cctools \
+          --with-libblocksruntime=/opt/cctools \
           --with-llvm-config=/opt/cctools/bin/llvm-config \
           --target=arm-apple-darwin11
           make -j5
