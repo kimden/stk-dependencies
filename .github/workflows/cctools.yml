@@ -107,9 +107,9 @@ jobs:
           make -j5
           sudo make install
           cd ../..
-          rm -rf cctools-port-master
+          rm -rf cctools-port-1024.3-ld64-955.13
           unzip cctools.zip
-          cd cctools-port-master/cctools
+          cd cctools-port-1024.3-ld64-955.13/cctools
           CC=/opt/cctools/bin/clang CXX=/opt/cctools/bin/clang++ ./configure \
           --prefix=/opt/cctools --with-libtapi=/opt/cctools \
           --with-libdispatch=/opt/cctools \
