@@ -1,0 +1,83 @@
+name: mxe
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+  pull_request: {}
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.5.0
+        with:
+          fetch-depth: 1
+          submodules: true
+
+      - name: Configure packaging name for git master branch
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: |
+          echo "release_name=preview" >> $GITHUB_ENV
+      - name: Configure packaging name for tag
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: |
+          echo "release_name=`basename $GITHUB_REF`" >> $GITHUB_ENV
+      - name: Otherwise, write to preview anyway
+        if: ${{ !(github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')) }}
+        run: |
+          echo "release_name=preview" >> $GITHUB_ENV
+      - name: Check for prerelease
+        if: ${{ github.ref == 'refs/heads/master' || contains(github.ref, 'rc') || contains(github.ref, 'beta') }}
+        run: |
+          echo "release_pre=true" >> $GITHUB_ENV
+      - name: Check for non-prerelease
+        if: ${{ github.ref != 'refs/heads/master' && !contains(github.ref, 'rc') && !contains(github.ref, 'beta') }}
+        run: |
+          echo "release_pre=false" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: |
+          sudo apt install -y \
+          autoconf automake autopoint bash bison bzip2 flex g++ g++-multilib gettext \
+          git gperf intltool libc6-dev-i386 libclang-dev libgdk-pixbuf2.0-dev libltdl-dev \
+          libgl-dev libpcre2-dev libssl-dev libtool-bin libxml-parser-perl lzip make \
+          openssl p7zip-full patch perl python3 python3-mako python3-packaging \
+          python3-pkg-resources python3-setuptools python-is-python3 ruby sed sqlite3 \
+          unzip wget xz-utils
+      - name: Download archives
+        run: |
+          wget https://github.com/mxe/mxe/archive/refs/heads/master.zip
+          unzip master.zip
+          mv mxe-master mxe
+          mkdir -p mxe/pkg
+          cd mxe/pkg
+          wget https://github.com/kimden/stk-dependencies/releases/download/preview/mxe_requirements.zip
+          unzip mxe_requirements.zip
+          rm mxe_requirements.zip
+          cd ../..
+          mkdir -p /data/
+          sudo mv mxe /data/
+      - name: Run make
+        run: |
+          cd /data/mxe
+          sudo make cc MXE_TARGETS='i686-w64-mingw32.static.posix.dw2 x86_64-w64-mingw32.static.posix.seh'
+      - name: Archive
+        run: |
+          FOLDER=$(pwd)
+          cd /data/mxe/usr/
+          zip -r $FOLDER/mxe_static_mingw.zip ./*
+      - name: Upload
+        uses: ncipollo/release-action@v1.11.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "mxe_static_mingw.zip"
+          tag: ${{ env.release_name }}
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          allowUpdates: true
+          prerelease: ${{ env.release_pre }}
