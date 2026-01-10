@@ -11,23 +11,24 @@ env:
   TVSIM_SDK: '16.1'
   IPHONEOS_SDK: '16.1'
   IPHONESIM_SDK: '16.1'
-  MACOS_SDK: '13.0'
+  MACOS_SDK: '15.0'
+  XCODE_VERSION: '16.1' # Change output name too
 
 jobs:
   extract_sdk:
     name: Extract SDK
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
       - name: Copy SDK files
         run: |
           mkdir -p cctools/sdk
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-12-Readme.md
-          cp -R /Applications/Xcode_14.1.app/Contents/Developer/Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS.sdk cctools/sdk
-          cp -R /Applications/Xcode_14.1.app/Contents/Developer/Platforms/AppleTVSimulator.platform/Developer/SDKs/AppleTVSimulator.sdk cctools/sdk
-          cp -R /Applications/Xcode_14.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk cctools/sdk
-          cp -R /Applications/Xcode_14.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk cctools/sdk
-          cp -R /Applications/Xcode_14.1.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk cctools/sdk
-          cp -R /Applications/Xcode_14.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/*/lib/darwin cctools
+          cp -R /Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer/Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS.sdk cctools/sdk
+          cp -R /Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer/Platforms/AppleTVSimulator.platform/Developer/SDKs/AppleTVSimulator.sdk cctools/sdk
+          cp -R /Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk cctools/sdk
+          cp -R /Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk cctools/sdk
+          cp -R /Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk cctools/sdk
+          cp -R /Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/*/lib/darwin cctools
           cd cctools/sdk
           mv AppleTVOS.sdk AppleTVOS$TVOS_SDK.sdk
           ln -s AppleTVOS$TVOS_SDK.sdk AppleTVOS.sdk
@@ -120,34 +121,34 @@ jobs:
           sudo make install
           cd /opt/cctools/bin
           set +H
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/iPhoneOS$IPHONEOS_SDK.sdk -arch arm64 -miphoneos-version-min=10.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-iphoneos-clang
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/iPhoneOS$IPHONEOS_SDK.sdk -arch arm64 -miphoneos-version-min=10.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-iphoneos-clang++
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/AppleTVOS$TVOS_SDK.sdk -arch arm64 -mtvos-version-min=10.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-appletvos-clang
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/AppleTVOS$TVOS_SDK.sdk -arch arm64 -mtvos-version-min=10.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-appletvos-clang++
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/AppleTVSimulator$TVSIM_SDK.sdk -arch arm64 -mtvos-simulator-version-min=10.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-appletvsimulator-clang
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/AppleTVSimulator$TVSIM_SDK.sdk -arch arm64 -mtvos-simulator-version-min=10.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-appletvsimulator-clang++
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target x86_64-apple-darwin11 -isysroot /opt/cctools/sdk/AppleTVSimulator$TVSIM_SDK.sdk -arch x86_64 -mtvos-simulator-version-min=10.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > x86_64-appletvsimulator-clang
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target x86_64-apple-darwin11 -isysroot /opt/cctools/sdk/AppleTVSimulator$TVSIM_SDK.sdk -arch x86_64 -mtvos-simulator-version-min=10.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > x86_64-appletvsimulator-clang++
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/iPhoneSimulator$IPHONESIM_SDK.sdk -arch arm64 -miphonesimulator-version-min=10.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-iphonesimulator-clang
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/iPhoneSimulator$IPHONESIM_SDK.sdk -arch arm64 -miphonesimulator-version-min=10.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-iphonesimulator-clang++
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target x86_64-apple-darwin11 -isysroot /opt/cctools/sdk/iPhoneSimulator$IPHONESIM_SDK.sdk -arch x86_64 -miphonesimulator-version-min=10.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > x86_64-iphonesimulator-clang
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target x86_64-apple-darwin11 -isysroot /opt/cctools/sdk/iPhoneSimulator$IPHONESIM_SDK.sdk -arch x86_64 -miphonesimulator-version-min=10.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > x86_64-iphonesimulator-clang++
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target x86_64-apple-darwin11 -isysroot /opt/cctools/sdk/MacOSX$MACOS_SDK.sdk -arch x86_64 -mmacosx-version-min=10.13 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > x86_64-macosx-clang
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target x86_64-apple-darwin11 -isysroot /opt/cctools/sdk/MacOSX$MACOS_SDK.sdk -arch x86_64 -mmacosx-version-min=10.13 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > x86_64-macosx-clang++
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/MacOSX$MACOS_SDK.sdk -arch arm64 -mmacosx-version-min=10.13 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-macosx-clang
-          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/MacOSX$MACOS_SDK.sdk -arch arm64 -mmacosx-version-min=10.13 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-macosx-clang++
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/iPhoneOS$IPHONEOS_SDK.sdk -arch arm64 -miphoneos-version-min=13.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-iphoneos-clang
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/iPhoneOS$IPHONEOS_SDK.sdk -arch arm64 -miphoneos-version-min=13.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-iphoneos-clang++
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/AppleTVOS$TVOS_SDK.sdk -arch arm64 -mtvos-version-min=13.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-appletvos-clang
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/AppleTVOS$TVOS_SDK.sdk -arch arm64 -mtvos-version-min=13.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-appletvos-clang++
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/AppleTVSimulator$TVSIM_SDK.sdk -arch arm64 -mtvos-simulator-version-min=13.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-appletvsimulator-clang
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/AppleTVSimulator$TVSIM_SDK.sdk -arch arm64 -mtvos-simulator-version-min=13.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-appletvsimulator-clang++
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target x86_64-apple-darwin11 -isysroot /opt/cctools/sdk/AppleTVSimulator$TVSIM_SDK.sdk -arch x86_64 -mtvos-simulator-version-min=13.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > x86_64-appletvsimulator-clang
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target x86_64-apple-darwin11 -isysroot /opt/cctools/sdk/AppleTVSimulator$TVSIM_SDK.sdk -arch x86_64 -mtvos-simulator-version-min=13.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > x86_64-appletvsimulator-clang++
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/iPhoneSimulator$IPHONESIM_SDK.sdk -arch arm64 -miphonesimulator-version-min=13.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-iphonesimulator-clang
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/iPhoneSimulator$IPHONESIM_SDK.sdk -arch arm64 -miphonesimulator-version-min=13.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-iphonesimulator-clang++
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target x86_64-apple-darwin11 -isysroot /opt/cctools/sdk/iPhoneSimulator$IPHONESIM_SDK.sdk -arch x86_64 -miphonesimulator-version-min=13.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > x86_64-iphonesimulator-clang
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target x86_64-apple-darwin11 -isysroot /opt/cctools/sdk/iPhoneSimulator$IPHONESIM_SDK.sdk -arch x86_64 -miphonesimulator-version-min=13.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > x86_64-iphonesimulator-clang++
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target x86_64-apple-darwin11 -isysroot /opt/cctools/sdk/MacOSX$MACOS_SDK.sdk -arch x86_64 -mmacosx-version-min=11.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > x86_64-macosx-clang
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target x86_64-apple-darwin11 -isysroot /opt/cctools/sdk/MacOSX$MACOS_SDK.sdk -arch x86_64 -mmacosx-version-min=11.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > x86_64-macosx-clang++
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/MacOSX$MACOS_SDK.sdk -arch arm64 -mmacosx-version-min=11.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-macosx-clang
+          sudo printf "#!/bin/bash\nCOMPILER_PATH=/opt/cctools/bin /opt/cctools/bin/clang++ -target arm-apple-darwin11 -isysroot /opt/cctools/sdk/MacOSX$MACOS_SDK.sdk -arch arm64 -mmacosx-version-min=11.0 -mlinker-version=609 -Wno-unused-command-line-argument \$@" > arm64-macosx-clang++
           sudo chmod 755 arm*-clang*
           sudo chmod 755 x86_64*-clang*
       - name: Archive
         run: |
           var=$(pwd)
           cd /opt
-          tar -cJvf $var/cctools-14.1.tar.xz cctools
+          tar -cJvf $var/cctools-16.1.tar.xz cctools
       - name: Upload cctools deps
         uses: ncipollo/release-action@v1.11.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "cctools-14.1.tar.xz"
+          artifacts: "cctools-16.1.tar.xz"
           tag: "cctools"
           omitBodyDuringUpdate: true
           omitNameDuringUpdate: true
