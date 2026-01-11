@@ -1,12 +1,7 @@
 name: mxe
 on:
-  push:
-    branches:
-      - master
-    tags:
-      - '*'
-  pull_request: {}
-  workflow_dispatch:
+  repository_dispatch:
+    types: [trigger-mxe]
 
 jobs:
   build:
