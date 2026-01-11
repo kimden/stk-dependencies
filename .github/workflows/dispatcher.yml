@@ -1,0 +1,81 @@
+name: Dispatcher
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+  pull_request: {}
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    outputs:
+      target_sha: ${{ steps.fetch.outputs.target_sha }}
+      commit_message: ${{ steps.fetch.outputs.commit_message }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - id: fetch
+        run: |
+          target_sha="${{ github.event.pull_request.head.sha || github.event.after || github.sha }}"
+          echo "target_sha=$target_sha" >> $GITHUB_OUTPUT
+
+          msg="$(git log -1 --format=%B "$target_sha" | tr '\n' ' ' | sed 's/  */ /g' | sed 's/^\s\+|\s\+$//g')"
+
+          echo "DEBUG: Target SHA = $target_sha"
+          echo "DEBUG: Flattened message = [$msg]"
+
+          echo "commit_message=$msg" >> $GITHUB_OUTPUT
+
+  dispatch:
+    needs: prep
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        workflow: [win, android, moltenvk, mxe]
+    steps:
+      - run: |
+          msg="${{ needs.prep.outputs.commit_message }}"
+          job="${{ matrix.workflow }}"
+
+          echo "DEBUG: Checking $job against message = [$msg]"
+
+          has_ci=false
+          [[ "$msg" == *"?ci"* ]] && has_ci=true
+
+          has_ci_plus=false
+          [[ "$msg" == *"?ci+"* ]] && has_ci_plus=true
+
+          should_run=false
+
+          if [ "$has_ci" = false ]; then
+            should_run=true
+          elif [[ "$msg" == *"+${job}+"* ]]; then
+            should_run=true
+          elif [ "$has_ci_plus" = true ] && ! [[ "$msg" == *"-${job}-"* ]]; then
+            should_run=true
+          fi
+
+          echo "DEBUG: should_run for $job = $should_run"
+
+          if [ "$should_run" = false ]; then
+            echo "Skipping dispatch for $job"
+            exit 0
+          fi
+
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createDispatchEvent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              event_type: `trigger-${{ matrix.workflow }}`,
+              client_payload: { target_sha: '${{ needs.prep.outputs.target_sha }}' }
+            })
